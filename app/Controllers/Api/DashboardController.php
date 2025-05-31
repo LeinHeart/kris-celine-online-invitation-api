@@ -63,11 +63,6 @@ class DashboardController extends Controller
         return $this->json->successOK(Auth::user()->except(['id', 'password', 'is_admin', 'is_active', 'created_at', 'updated_at']));
     }
 
-    public function config(): JsonResponse
-    {
-        return $this->json->successOK(Auth::user()->only(['name', 'can_edit', 'can_delete', 'can_reply', 'tenor_key', 'is_confetti_animation']));
-    }
-
     public function configV2(): JsonResponse
     {
         return $this->json->successOK(Auth::user()->only(['tz', 'can_edit', 'can_delete', 'can_reply', 'tenor_key', 'is_confetti_animation']));
@@ -81,7 +76,7 @@ class DashboardController extends Controller
             return $this->json->errorBadRequest($valid->messages());
         }
 
-        $user = Auth::user()->only('id');
+        $user = Auth::user()->only(['id', 'password']);
 
         if (!empty($valid->name)) {
             $user->name = $valid->name;
@@ -120,7 +115,7 @@ class DashboardController extends Controller
         }
 
         if (!empty($valid->get('old_password')) && !empty($valid->get('new_password'))) {
-            if (!Hash::check($valid->get('old_password'), Auth::user()->refresh()->password ?? '')) {
+            if (!Hash::check($valid->get('old_password'), $user->password ?? '')) {
                 return $this->json->errorBadRequest(['password not match.']);
             }
 

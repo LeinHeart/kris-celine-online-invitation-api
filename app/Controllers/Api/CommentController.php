@@ -60,26 +60,6 @@ class CommentController extends Controller
         return null;
     }
 
-    public function get(Request $request): JsonResponse
-    {
-        $valid = $this->validate($request, [
-            'next' => ['nullable', 'int'],
-            'per' => ['required', 'int', 'max:10']
-        ]);
-
-        if ($valid->fails()) {
-            return $this->json->errorBadRequest($valid->messages());
-        }
-
-        return $this->json->successOK($this->comment->getAll(
-            Auth::id(),
-            Auth::user()->isAdmin(),
-            Auth::user()->name,
-            $valid->per,
-            $valid->next ?? 0
-        ));
-    }
-
     public function getV2(Request $request): JsonResponse
     {
         $valid = $this->validate($request, [
@@ -251,7 +231,7 @@ class CommentController extends Controller
             $valid->comment = Aman::factory()->masking($valid->comment, ' * ');
         }
 
-        if (!empty($valid->id) && !$this->comment->getByUuidWithoutUser($valid->id)->exist()) {
+        if (!empty($valid->id) && !$this->comment->getByUuid(auth()->id(), $valid->id)->exist()) {
             return $this->json->errorNotFound();
         }
 

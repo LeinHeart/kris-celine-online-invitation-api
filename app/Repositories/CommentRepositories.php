@@ -54,7 +54,7 @@ class CommentRepositories implements CommentContract
                 ->whereIn('comments.parent_id', $uuids)
                 ->where('comments.user_id', $user_id)
                 ->select($selectedFields)
-                ->select(['comments.id', 'false as is_parent', 'comments.parent_id', 'count(likes.id) as comment_like', 'comments.number_of_guest'])
+                ->select(['comments.id', 'false as is_parent', 'comments.parent_id', 'count(likes.id) as like'])
                 ->groupBy(['comments.id', ...$selectedFields])
                 ->orderBy('comments.id')
                 ->get()
@@ -87,7 +87,7 @@ class CommentRepositories implements CommentContract
             ->whereNull('comments.parent_id')
             ->where('comments.user_id', $user_id)
             ->select($selectedFields)
-            ->select(['comments.id', 'true as is_parent', 'comments.parent_id', 'count(likes.id) as comment_like', 'comments.number_of_guest'])
+            ->select(['comments.id', 'true as is_parent', 'comments.parent_id', 'count(likes.id) as like'])
             ->groupBy(['comments.id', ...$selectedFields])
             ->orderBy('comments.id', 'DESC')
             ->limit(abs($limit))
@@ -181,10 +181,5 @@ class CommentRepositories implements CommentContract
             ])
             ->orderBy('is_created', 'DESC')
             ->get();
-    }
-
-    public function getByUuidWithoutUser(string $uuid): Model
-    {
-        return Comment::where('uuid', $uuid)->first();
     }
 }
