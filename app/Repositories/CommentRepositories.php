@@ -23,6 +23,7 @@ class CommentRepositories implements CommentContract
             'comments.uuid',
             'comments.name',
             'comments.presence',
+            'comments.number_of_guest',
             'comments.comment',
             'comments.is_admin',
             'comments.gif_url',
@@ -53,7 +54,7 @@ class CommentRepositories implements CommentContract
                 ->whereIn('comments.parent_id', $uuids)
                 ->where('comments.user_id', $user_id)
                 ->select($selectedFields)
-                ->select(['comments.id', 'false as is_parent', 'comments.parent_id', 'count(likes.id) as like'])
+                ->select(['comments.id', 'false as is_parent', 'comments.parent_id', 'count(likes.id) as comment_like', 'comments.number_of_guest'])
                 ->groupBy(['comments.id', ...$selectedFields])
                 ->orderBy('comments.id')
                 ->get()
@@ -71,7 +72,7 @@ class CommentRepositories implements CommentContract
 
                 // this change is backward-compatible
                 $tmp = new \stdClass();
-                $tmp->love = $comment->like;
+                $tmp->love = $comment->comment_like;
                 $comment->like = $tmp;
 
                 unset($comment->id);
@@ -86,7 +87,7 @@ class CommentRepositories implements CommentContract
             ->whereNull('comments.parent_id')
             ->where('comments.user_id', $user_id)
             ->select($selectedFields)
-            ->select(['comments.id', 'true as is_parent', 'comments.parent_id', 'count(likes.id) as like'])
+            ->select(['comments.id', 'true as is_parent', 'comments.parent_id', 'count(likes.id) as comment_like', 'comments.number_of_guest'])
             ->groupBy(['comments.id', ...$selectedFields])
             ->orderBy('comments.id', 'DESC')
             ->limit(abs($limit))
@@ -155,6 +156,7 @@ class CommentRepositories implements CommentContract
                 'comments.uuid',
                 'comments.name',
                 'comments.presence',
+                'comments.number_of_guest',
                 'comments.is_admin',
                 'comments.comment',
                 'comments.gif_url',
@@ -168,6 +170,7 @@ class CommentRepositories implements CommentContract
                 'count(likes.id) as count_like',
                 'comments.name',
                 'comments.presence',
+                'comments.number_of_guest',
                 'comments.is_admin',
                 'comments.comment',
                 'comments.gif_url',

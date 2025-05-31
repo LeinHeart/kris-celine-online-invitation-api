@@ -14,6 +14,7 @@ final class Comment extends Model
         'user_id',
         'name',
         'presence',
+        'number_of_guest',
         'comment',
         'uuid',
         'ip',
@@ -37,7 +38,7 @@ final class Comment extends Model
             'parent_id',
             'uuid',
             function (Query $query): Query {
-                return $query->select(['uuid', 'name', 'presence', 'comment', 'is_admin', 'gif_url', 'created_at', ...(auth()->user()->isAdmin() ? ['ip', 'own', 'user_agent'] : [])])->orderBy('id');
+                return $query->select(['uuid', 'name', 'presence', 'number_of_guest', 'comment', 'is_admin', 'gif_url', 'created_at', ...(auth()->user()->isAdmin() ? ['ip', 'own', 'user_agent'] : [])])->orderBy('id');
             }
         )->as('comments')->with($this->likes())->recursive();
     }

@@ -115,7 +115,7 @@ class CommentController extends Controller
             return $this->json->errorNotFound();
         }
 
-        return $this->json->successOK($comment->only(['name', 'presence', 'comment', 'is_admin', 'gif_url', 'created_at']));
+        return $this->json->successOK($comment->only(['name', 'presence', 'number_of_guest', 'comment', 'is_admin', 'gif_url', 'created_at']));
     }
 
     #[UuidMiddleware]
@@ -189,6 +189,7 @@ class CommentController extends Controller
 
         $valid = $this->validate($request, [
             'presence' => ['bool'],
+            'number_of_guest' => ['nullable', 'int', 'min:0', 'max:2'],
             'comment' => ['nullable', 'str', 'min:1', 'max:1000'],
             'gif_id' => ['nullable', 'str', 'min:1', 'max:100'],
         ]);
@@ -223,8 +224,8 @@ class CommentController extends Controller
             return $this->json->errorBadRequest(['Comment or GIF must be provided']);
         }
 
-        $status = $comment->only(['id', 'presence', 'comment', 'gif_url'])
-            ->fill($valid->only(['presence', 'comment', 'gif_url']))
+        $status = $comment->only(['id', 'presence', 'number_of_guest', 'comment', 'gif_url'])
+            ->fill($valid->only(['presence', 'number_of_guest', 'comment', 'gif_url']))
             ->save();
 
         if ($status === 1) {
@@ -274,7 +275,7 @@ class CommentController extends Controller
         ]);
 
         return $this->json->success(
-            $comment->only(['name', 'presence', 'comment', 'uuid', 'own', 'gif_url', 'created_at']),
+            $comment->only(['name', 'presence', 'number_of_guest', 'comment', 'uuid', 'own', 'gif_url', 'created_at']),
             Respond::HTTP_CREATED
         );
     }

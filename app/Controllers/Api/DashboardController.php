@@ -13,6 +13,7 @@ use Core\Http\Request;
 use Core\Http\Stream;
 use Core\Valid\Hash;
 use DateTimeZone;
+use App\Models\Comment;
 
 class DashboardController extends Controller
 {
@@ -27,9 +28,20 @@ class DashboardController extends Controller
     {
         $comments = $comment->countPresenceByUserID(Auth::id());
 
+        $query_data = Comment::select([
+                            'SUM(number_of_guest) as guest_count'
+                        ])
+                        ->first();
+
+        $jumlah_guest = 0;
+        if(isset($query_data)){
+            $jumlah_guest = $query_data->guest_count;
+        }
+
         return $this->json->successOK([
             'present' => intval($comments->present_count ?? 0),
             'absent' => intval($comments->absent_count ?? 0),
+            'guest' => $jumlah_guest,
             'likes' => $like->countLikeByUserID(Auth::id()),
             'comments' => $comment->countCommentByUserID(Auth::id())
         ]);
@@ -132,6 +144,7 @@ class DashboardController extends Controller
             'like',
             'name',
             'presence',
+            'number_of_guest',
             'is_admin',
             'comment',
             'gif_url',
